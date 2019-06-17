@@ -6,6 +6,94 @@
 #include "buffer.h"
 #include <string.h>
 
+enum http_method {
+    get_method  = 0x01,
+    post_method = 0x02,
+    head_method = 0x03,
+};
+
+enum url_state {
+  url_init_state,
+  url_schema_state,
+  url_slash_state,
+  url_slash_slash_state,
+  url_auth_f_state,
+  url_auth_userinfo_state,
+  url_auth_host_state,
+  url_auth_port_state,
+  url_ipv6_state,
+  url_path_state,
+  url_query_state,
+  url_done_state,
+  url_invalid_state,
+};
+
+enum header_state {
+  header_init,
+  header_name,
+  header_value,
+  header_value_start,
+  header_done_cr,
+  header_done,
+  header_content_length_check,
+  header_host_check,
+ };
+
+enum http_state {
+  method_state,
+  check_method_state,
+  absolute_url_state,
+  version_state,
+  start_header_state,
+  headers_state,
+  body_start_state,
+  body_state,
+  done_state,
+  error_unsupported_method_state,
+  error_too_long_url_state,
+  error_too_long_header_state,
+  error_invalid_url_state,
+  error_unsupported_version_state,
+  error_no_end_state,
+  error_bad_request_state,
+  error_unsupported_encoding_state,
+  error_code_notsupported_state,
+  error_reason_too_long_state,
+  error_bad_response_state,
+  sp_state,
+  status_code_state,
+  status_rn_state,
+};
+
+struct http_parser {
+  struct http_request *request;
+  enum http_state state;
+  enum url_state url_state;
+  enum header_state h_state;
+  uint16_t i_host;
+  uint16_t i_header;
+  bool  host_defined;
+  uint32_t content_length;
+  bool body_found;
+  bool is_proxy_connection;
+  bool method_supported;
+   /** cuantos bytes tenemos que leer*/
+   uint16_t n;
+   /** cuantos bytes ya leimos */
+   uint16_t i;
+};
+
+struct http_request {
+  enum http_method method;
+  char http_version;
+  char bckp_headers[MAX_HEADERS_LEN_ARRAY];
+  char absolute_url[MAX_URL_LEN];
+  char fqdn[MAX_FQDN_LEN];
+  char header_host[MAX_FQDN_LEN];
+  char * headers;
+  in_port_t dest_port;
+  uint32_t header_content_len;
+};
 
 
 /** inicializa el parser */
