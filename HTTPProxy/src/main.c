@@ -24,6 +24,7 @@ int create_passive_socket(struct addrinfo *address, int proto) {
     int passive_socket;
     int sock_opt = true;
 
+    // fail
     if ((passive_socket = socket(address->ai_family, SOCK_STREAM, proto)) == 0) {
         perror("unable to create socket");
         exit(EXIT_FAILURE);
